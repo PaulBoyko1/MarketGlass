@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="MarketGlass is an offline, evidence-first market research workbench."
+    >
+    <title>MarketGlass | Research Workbench</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="app-bar">
+      <div class="brand-lockup" aria-label="MarketGlass">
+        <span class="brand-mark" aria-hidden="true">M</span>
+        <span>
+          <strong>MarketGlass</strong>
+          <small>Evidence-first research workbench</small>
+        </span>
+      </div>
+      <div class="app-status">
+        <span id="save-status" aria-live="polite">Saved locally</span>
+        <button class="text-button" type="button" data-action="reset">Reset workspace</button>
+      </div>
+    </header>
+
+    <div class="app-shell">
+      <nav class="rail" aria-label="MarketGlass sections">
+        <button class="rail-button is-active" type="button" data-view="workspace" aria-current="page">
+          Workspace
+        </button>
+        <button class="rail-button" type="button" data-view="method">Method</button>
+        <button class="rail-button" type="button" data-view="definitions">Definitions</button>
+        <p class="rail-note">Private browser storage. No market data is fetched or transmitted.</p>
+      </nav>
+
+      <main>
+        <section class="view is-active" data-view-panel="workspace" aria-labelledby="workspace-title">
+          <div class="view-intro">
+            <p class="eyebrow">Research canvas</p>
+            <h1 id="workspace-title">Make the uncertainty part of the thesis.</h1>
+            <p>
+              Build a small model of possible outcomes, preserve the evidence that challenges
+              your view, and state what would change your mind.
+            </p>
+          </div>
+
+          <section class="signal-strip" aria-label="Current research summary">
+            <div>
+              <span>Expected return</span>
+              <strong id="expected-return">0%</strong>
+            </div>
+            <div>
+              <span>Probability total</span>
+              <strong id="probability-total">0%</strong>
+            </div>
+            <div>
+              <span>Evidence conviction</span>
+              <strong id="evidence-conviction">0</strong>
+            </div>
+            <div>
+              <span>Research health</span>
+              <strong id="research-health">0</strong>
+            </div>
+          </section>
+
+          <div class="workspace-layout">
+            <section class="tool-section scenarios-section" aria-labelledby="scenarios-title">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Outcome model</p>
+                  <h2 id="scenarios-title">Scenario weights</h2>
+                </div>
+                <span class="status-badge" id="scenario-status">Checking probabilities</span>
+              </div>
+              <div class="scenario-headings" aria-hidden="true">
+                <span>Scenario</span>
+                <span>Probability</span>
+                <span>Return</span>
+              </div>
+              <div id="scenario-list" class="scenario-list"></div>
+              <p class="section-footnote">
+                The expected return is a weighted arithmetic result, not a prediction or a recommendation.
+              </p>
+            </section>
+
+            <figure class="belief-map" aria-labelledby="belief-map-title">
+              <div class="figure-heading">
+                <div>
+                  <p class="eyebrow">Live visual</p>
+                  <h2 id="belief-map-title">Belief map</h2>
+                </div>
+                <span id="belief-map-label">Current posture</span>
+              </div>
+              <canvas id="belief-canvas" width="640" height="320">
+                A visual summary of expected return and evidence conviction.
+              </canvas>
+              <figcaption>
+                Horizontal position reflects expected return. Vertical position reflects the current
+                balance of supporting and challenging evidence.
+              </figcaption>
+            </figure>
+          </div>
+
+          <section class="tool-section ledger-section" aria-labelledby="ledger-title">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Claim discipline</p>
+                <h2 id="ledger-title">Evidence ledger</h2>
+              </div>
+              <span id="ledger-count" class="count-label">0 claims</span>
+            </div>
+
+            <form id="evidence-form" class="ledger-form">
+              <label class="wide-field">
+                <span>Claim</span>
+                <input id="evidence-title" name="title" type="text" maxlength="180" required>
+              </label>
+              <label>
+                <span>Source</span>
+                <input id="evidence-source" name="source" type="text" maxlength="120">
+              </label>
+              <label>
+                <span>Type</span>
+                <select id="evidence-kind" name="kind">
+                  <option value="fact">Fact</option>
+                  <option value="inference">Inference</option>
+                  <option value="assumption">Assumption</option>
+                  <option value="catalyst">Catalyst</option>
+                </select>
+              </label>
+              <label>
+                <span>Direction</span>
+                <select id="evidence-direction" name="direction">
+                  <option value="support">Supports</option>
+                  <option value="challenge">Challenges</option>
+                </select>
+              </label>
+              <label class="confidence-field">
+                <span>Confidence <output id="confidence-output" for="evidence-confidence">70</output></span>
+                <input id="evidence-confidence" name="confidence" type="range" min="0" max="100" value="70">
+              </label>
+              <button class="primary-button" type="submit">Add claim</button>
+            </form>
+            <p id="evidence-message" class="form-message" aria-live="polite"></p>
+            <div id="evidence-list" class="evidence-list"></div>
+          </section>
+
+          <section class="tool-section falsifier-section" aria-labelledby="falsifier-title">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Disconfirming conditions</p>
+                <h2 id="falsifier-title">Falsifiers</h2>
+              </div>
+              <span id="falsifier-count" class="count-label">0 conditions</span>
+            </div>
+            <form id="falsifier-form" class="falsifier-form">
+              <label>
+                <span>Condition that would weaken the thesis</span>
+                <input id="falsifier-input" type="text" maxlength="220" required>
+              </label>
+              <button class="primary-button" type="submit">Add falsifier</button>
+            </form>
+            <ul id="falsifier-list" class="falsifier-list"></ul>
+          </section>
+
+          <aside class="disclaimer" aria-label="Important limitation">
+            <strong>Research process only.</strong>
+            MarketGlass is an educational prototype for organizing a thesis. It does not provide
+            investment advice, execute trades, or fetch live market information.
+          </aside>
+        </section>
+
+        <section class="view" data-view-panel="method" aria-labelledby="method-title" hidden>
+          <div class="view-intro">
+            <p class="eyebrow">A slower way to reason</p>
+            <h1 id="method-title">A thesis becomes useful when it can be revised.</h1>
+            <p>
+              The workbench is organized around four habits that make research more legible to
+              your future self.
+            </p>
+          </div>
+          <ol id="method-list" class="method-list"></ol>
+          <section class="method-application" aria-labelledby="method-application-title">
+            <p class="eyebrow">Applied here</p>
+            <h2 id="method-application-title">What each section changes</h2>
+            <div class="application-grid">
+              <article>
+                <h3>Scenario weights</h3>
+                <p>They force a single narrative to compete with alternative outcomes.</p>
+              </article>
+              <article>
+                <h3>Evidence ledger</h3>
+                <p>It distinguishes established facts from the inferences built on top of them.</p>
+              </article>
+              <article>
+                <h3>Falsifiers</h3>
+                <p>They convert unease into conditions that can be noticed and acted on.</p>
+              </article>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" data-view-panel="definitions" aria-labelledby="definitions-title" hidden>
+          <div class="view-intro">
+            <p class="eyebrow">Shared language</p>
+            <h1 id="definitions-title">Definitions that keep a research note honest.</h1>
+            <p>
+              These ideas are intentionally plain-language. The point is not jargon; it is making
+              assumptions inspectable.
+            </p>
+          </div>
+          <div id="glossary-list" class="glossary-grid"></div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
