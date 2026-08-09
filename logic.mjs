@@ -166,6 +166,37 @@ export function evaluateResearch(scenariosInput, evidenceInput, falsifiersInput)
   };
 }
 
+export function evaluateNotebookCompleteness(scenariosInput, evidenceInput, falsifiersInput, context = {}) {
+  const scenarios = describeScenarios(scenariosInput);
+  const evidence = Array.isArray(evidenceInput)
+    ? evidenceInput.filter((entry) => validateEvidenceDraft(entry).valid)
+    : [];
+  const falsifiers = Array.isArray(falsifiersInput)
+    ? falsifiersInput.filter((entry) => {
+        const text = typeof entry === "string" ? entry : entry?.text;
+        return typeof text === "string" && text.trim().length >= 4;
+      })
+    : [];
+  const challengeCount = evidence.filter((entry) => validateEvidenceDraft(entry).entry.direction === "challenge").length;
+  const sourcedCount = evidence.filter((entry) => validateEvidenceDraft(entry).entry.source.length > 0).length;
+  const items = [
+    { label: "Scenario probabilities total 100%", done: scenarios.isBalanced },
+    { label: "At least two evidence claims", done: evidence.length >= 2 },
+    { label: "At least one counterevidence claim", done: challengeCount >= 1 },
+    { label: "At least one evidence source recorded", done: sourcedCount >= 1 },
+    { label: "At least one falsifier recorded", done: falsifiers.length >= 1 },
+    { label: "Linked to a market state or experiment", done: Boolean(context.marketState || context.experimentId) }
+  ];
+  const done = items.filter((item) => item.done).length;
+  return {
+    done,
+    total: items.length,
+    ratio: done / items.length,
+    items,
+    note: "Completeness is a checklist, not a measure of truth, rigor, or expected return."
+  };
+}
+
 export function formatSignedPercent(value) {
   const rounded = round(value);
   return (rounded > 0 ? "+" : "") + String(rounded) + "%";

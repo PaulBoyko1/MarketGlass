@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   describeScenarios,
+  evaluateNotebookCompleteness,
   evaluateResearch,
   scoreEvidence,
   validateEvidenceDraft
@@ -109,4 +110,23 @@ test("research health rewards balance, diversity, tension, and falsifiers", () =
   assert.ok(strong.score > weak.score);
   assert.equal(strong.label, "Structured");
   assert.equal(strong.falsifierCount, 2);
+});
+
+test("notebook completeness remains an explicit checklist rather than a research-quality score", () => {
+  const completeness = evaluateNotebookCompleteness(
+    [
+      { key: "bear", probability: 25, returnPct: -10 },
+      { key: "base", probability: 50, returnPct: 8 },
+      { key: "bull", probability: 25, returnPct: 24 }
+    ],
+    [
+      { title: "Participation is broad.", source: "Fixture", kind: "fact", direction: "support", confidence: 70 },
+      { title: "Leadership is concentrated.", source: "Fixture", kind: "fact", direction: "challenge", confidence: 70 }
+    ],
+    [{ text: "Breadth falls below 45 percent." }],
+    { marketState: { timestamp: "2026-08-10T14:00:00.000Z" } }
+  );
+
+  assert.equal(completeness.done, completeness.total);
+  assert.match(completeness.note, /not a measure of truth/);
 });

@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="MarketGlass is a local-first market-state microscope and hypothesis-testing laboratory.">
+    <title>MarketGlass | Market State Laboratory</title>
+    <link rel="stylesheet" href="/web/styles.css">
+  </head>
+  <body>
+    <div id="marketglass-app" class="app-shell" data-mode="demo">
+      <header class="topbar">
+        <div class="brand" aria-label="MarketGlass">
+          <span class="brand-mark" aria-hidden="true">MG</span>
+          <span>
+            <strong>MarketGlass</strong>
+            <small>market-state laboratory</small>
+          </span>
+        </div>
+
+        <div class="topbar-context" aria-label="Current session context">
+          <span id="mode-badge" class="mode-badge">DEMO / SYNTHETIC</span>
+          <div class="compact-field" aria-label="Selected instrument">
+            <span>Instrument</span>
+            <strong id="selected-instrument">SPY</strong>
+          </div>
+          <div class="market-time">
+            <span id="market-clock">09:30 ET</span>
+            <small id="market-date">Recorded demo</small>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <span id="save-status" class="save-status" aria-live="polite">Local workspace</span>
+          <button id="command-button" class="quiet-button" type="button" title="Open command palette (Ctrl or Cmd + K)">Command</button>
+        </div>
+      </header>
+
+      <aside class="left-rail" aria-label="MarketGlass workspaces">
+        <nav id="primary-nav" class="primary-nav">
+          <button class="nav-button is-active" type="button" data-view="market" aria-current="page">Market state</button>
+          <button class="nav-button" type="button" data-view="options">Options lab</button>
+          <button class="nav-button" type="button" data-view="hypothesis">Hypothesis lab</button>
+          <button class="nav-button" type="button" data-view="notebook">Research notebook</button>
+          <button class="nav-button" type="button" data-view="sources">Data sources</button>
+        </nav>
+
+        <section class="rail-section" aria-labelledby="session-title">
+          <p class="rail-label" id="session-title">Session</p>
+          <strong id="session-title-value">Narrow rally</strong>
+          <span id="session-subtitle">15-minute synchronized snapshots</span>
+        </section>
+
+        <section class="rail-section" aria-labelledby="study-title">
+          <p class="rail-label" id="study-title">View</p>
+          <label class="rail-field">
+            <span>Market data mode</span>
+            <select id="data-mode-select">
+              <option value="demo">Demo</option>
+              <option value="recorded">Recorded</option>
+              <option value="free">Free provider mode</option>
+              <option value="premium">Premium provider mode</option>
+            </select>
+          </label>
+          <label class="rail-field">
+            <span>Saved recording</span>
+            <select id="recording-select" disabled><option value="">No recordings yet</option></select>
+          </label>
+          <button id="record-session-button" class="rail-command" type="button">Record this session</button>
+        </section>
+
+        <p class="rail-disclaimer">Research instrument only. No trading, price targets, or provider keys in the browser.</p>
+      </aside>
+
+      <main class="workspace" id="workspace-main">
+        <section class="view is-active" data-view-panel="market" aria-labelledby="market-title">
+          <header class="view-heading">
+            <div>
+              <p class="eyebrow">Synchronized session inspection</p>
+              <h1 id="market-title">Price is moving. Who is moving with it?</h1>
+            </div>
+            <div class="provenance-chip" id="market-provenance" tabindex="0">SYNTHETIC / local fixture</div>
+          </header>
+
+          <section class="market-grid" aria-label="Market-state instrument">
+            <section class="instrument-panel primary-panel" aria-labelledby="price-panel-title">
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">Price and participation</p>
+                  <h2 id="price-panel-title">SPY versus equal-weight participation</h2>
+                </div>
+                <div class="legend" aria-label="Chart legend">
+                  <span><i class="swatch spy"></i>SPY</span>
+                  <span><i class="swatch rsp"></i>RSP</span>
+                  <span><i class="swatch breadth"></i>breadth</span>
+                </div>
+              </div>
+              <div id="market-chart" class="chart-stage" aria-label="Synchronized SPY, RSP, and breadth chart"></div>
+              <div class="chart-controls">
+                <label class="range-pair">
+                  <span>Observation start</span>
+                  <input id="observation-start" type="range" min="0" max="26" value="12">
+                </label>
+                <label class="range-pair">
+                  <span>Observation end</span>
+                  <input id="observation-end" type="range" min="0" max="26" value="18">
+                </label>
+                <button id="formalize-button" class="accent-button" type="button">Formalize observation</button>
+              </div>
+              <p class="panel-note">The band is a derived participation proxy. It does not label a reversal or forecast an outcome.</p>
+            </section>
+
+            <aside class="instrument-panel state-panel" aria-labelledby="state-panel-title">
+              <div class="panel-heading compact">
+                <div>
+                  <p class="panel-kicker">At the selected moment</p>
+                  <h2 id="state-panel-title">State inspector</h2>
+                </div>
+              </div>
+              <dl id="state-readout" class="state-readout"></dl>
+              <div id="state-fingerprint" class="fingerprint" aria-label="Market-state fingerprint"></div>
+              <button id="bookmark-button" class="wide-button" type="button">Bookmark market moment</button>
+            </aside>
+          </section>
+
+          <section class="instrument-band" aria-label="Market internals">
+            <article class="instrument-panel participation-panel">
+              <div class="panel-heading compact">
+                <div>
+                  <p class="panel-kicker">Breadth lab</p>
+                  <h2>Participation</h2>
+                </div>
+                <span id="breadth-source" class="source-label">DERIVED</span>
+              </div>
+              <div id="participation-visual" class="participation-visual"></div>
+              <p id="participation-note" class="panel-note"></p>
+            </article>
+
+            <article class="instrument-panel sector-panel">
+              <div class="panel-heading compact">
+                <div>
+                  <p class="panel-kicker">Sector internals</p>
+                  <h2>Leadership changes through the session</h2>
+                </div>
+              </div>
+              <div id="sector-grid" class="sector-grid" aria-label="Sector relative-return heatmap"></div>
+            </article>
+
+            <article class="instrument-panel volatility-panel">
+              <div class="panel-heading compact">
+                <div>
+                  <p class="panel-kicker">Volatility context</p>
+                  <h2>Implied and realized horizons</h2>
+                </div>
+              </div>
+              <div id="volatility-visual" class="volatility-visual"></div>
+              <p class="panel-note">VIX-family context and realized volatility use different horizons. MarketGlass labels the mismatch rather than collapsing it into a signal.</p>
+            </article>
+          </section>
+
+          <section class="instrument-panel comparison-panel" aria-labelledby="compare-title">
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">Time comparison</p>
+                <h2 id="compare-title">Compare two moments</h2>
+              </div>
+              <div class="compare-controls">
+                <label>Moment A <select id="compare-left"></select></label>
+                <label>Moment B <select id="compare-right"></select></label>
+              </div>
+            </div>
+            <div id="comparison-grid" class="comparison-grid"></div>
+          </section>
+        </section>
+
+        <section class="view" data-view-panel="options" aria-labelledby="options-title" hidden>
+          <header class="view-heading">
+            <div>
+              <p class="eyebrow">Options laboratory</p>
+              <h1 id="options-title">Observe the contracts before interpreting the surface.</h1>
+            </div>
+            <div id="options-provenance" class="provenance-chip" tabindex="0">SYNTHETIC / model-derived</div>
+          </header>
+
+          <div class="options-toolbar" aria-label="Options controls">
+            <label>Expiration <select id="expiry-select"></select></label>
+            <label>Contracts <select id="contract-filter"><option value="both">Calls + puts</option><option value="call">Calls</option><option value="put">Puts</option></select></label>
+            <label>Strike window <select id="strike-window"><option value="all">All visible</option><option value="near">Near spot</option></select></label>
+            <span id="options-count" class="toolbar-readout"></span>
+          </div>
+
+          <nav class="subnav" aria-label="Options laboratory views">
+            <button class="subnav-button is-active" type="button" data-options-panel="chain">Normalized chain</button>
+            <button class="subnav-button" type="button" data-options-panel="iv">IV surface</button>
+            <button class="subnav-button" type="button" data-options-panel="odte">0DTE time surface</button>
+            <button class="subnav-button" type="button" data-options-panel="gamma">Gamma assumptions</button>
+            <button class="subnav-button" type="button" data-options-panel="pnl">P&amp;L scenario</button>
+          </nav>
+
+          <section class="options-panel is-active" data-options-view="chain" aria-labelledby="chain-title">
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">Normalized options chain</p>
+                <h2 id="chain-title">Quotes, liquidity, IV, and Greeks</h2>
+              </div>
+              <span class="source-label">SOURCE PER COLUMN</span>
+            </div>
+            <div class="table-wrap">
+              <table class="options-table">
+                <thead><tr><th>Type</th><th>Strike</th><th>Bid</th><th>Ask</th><th>Mid</th><th>Spread</th><th>Volume</th><th>OI</th><th>IV</th><th>Delta</th><th>Gamma</th><th>Theta/day</th><th>Vega</th><th>Status</th></tr></thead>
+                <tbody id="options-table-body"></tbody>
+              </table>
+            </div>
+            <p class="panel-note">IV is synthetic surface input; Greeks are MarketGlass Black-Scholes approximation values. The fixture marks options as American-style to make the exercise-style limitation visible.</p>
+          </section>
+
+          <section class="options-panel" data-options-view="iv" aria-labelledby="iv-title" hidden>
+            <div class="surface-layout">
+              <div class="surface-copy">
+                <p class="panel-kicker">Flagship visual 01</p>
+                <h2 id="iv-title">Implied-volatility surface</h2>
+                <p>Strike and expiration form a shape. Raw contract points remain visible, so the mesh cannot silently create confidence.</p>
+                <div class="surface-controls">
+                  <label><input id="iv-raw-toggle" type="checkbox" checked> Raw points</label>
+                  <label><input id="iv-wire-toggle" type="checkbox" checked> Wireframe</label>
+                  <button id="iv-reset-camera" class="quiet-button" type="button">Reset camera</button>
+                </div>
+                <div id="iv-quality" class="surface-quality"></div>
+                <div id="iv-nearest" class="nearest-contract">Click a raw point to inspect the nearest contract.</div>
+              </div>
+              <div id="iv-surface" class="surface-stage" aria-label="Interactive implied volatility surface"></div>
+            </div>
+          </section>
+
+          <section class="options-panel" data-options-view="odte" aria-labelledby="odte-title" hidden>
+            <div class="surface-layout">
+              <div class="surface-copy">
+                <p class="panel-kicker">Flagship visual 02</p>
+                <h2 id="odte-title">0DTE time surface</h2>
+                <p>Strike by recorded timestamp by implied volatility. The replay cursor selects the live slice; no false tick-level interpolation is added between 15-minute captures.</p>
+                <div class="surface-controls">
+                  <label>Metric <select id="odte-metric"><option value="iv">IV</option><option value="gamma">Gamma</option><option value="spread">Bid-ask spread</option><option value="mid">Option mid</option></select></label>
+                  <label><input id="odte-raw-toggle" type="checkbox" checked> Raw points</label>
+                  <button id="odte-reset-camera" class="quiet-button" type="button">Reset camera</button>
+                </div>
+                <div id="odte-nearest" class="nearest-contract">The 0DTE surface excludes unstable expiry points.</div>
+              </div>
+              <div id="odte-surface" class="surface-stage" aria-label="Interactive 0DTE time surface"></div>
+            </div>
+          </section>
+
+          <section class="options-panel" data-options-view="gamma" aria-labelledby="gamma-title" hidden>
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">Position ambiguity exposed</p>
+                <h2 id="gamma-title">Gamma by strike</h2>
+              </div>
+              <label class="toolbar-control">Assumption <select id="gamma-mode"><option value="unsigned">Unsigned magnitude</option><option value="dealer_short_all">Dealer short all OI</option><option value="calls_long_puts_short">Calls positive / puts negative</option></select></label>
+            </div>
+            <div class="gamma-layout">
+              <div id="gamma-chart" class="chart-stage gamma-stage"></div>
+              <aside id="gamma-readout" class="gamma-readout"></aside>
+            </div>
+          </section>
+
+          <section class="options-panel" data-options-view="pnl" aria-labelledby="pnl-title" hidden>
+            <div class="surface-layout">
+              <div class="surface-copy">
+                <p class="panel-kicker">Flagship visual 03</p>
+                <h2 id="pnl-title">Option P&amp;L scenario surface</h2>
+                <p>Spot shock by IV shock by theoretical P&amp;L. This is a risk sandbox, not a trade recommendation.</p>
+                <div class="scenario-form">
+                  <label>Type <select id="pnl-type"><option value="call">Long call</option><option value="put">Long put</option></select></label>
+                  <label>Strike <input id="pnl-strike" type="number" value="605" step="5"></label>
+                  <label>Quantity <input id="pnl-quantity" type="number" min="1" value="1"></label>
+                  <label>Hours remaining <input id="pnl-hours" type="number" min="0.25" value="2.5" step="0.25"></label>
+                  <button id="pnl-update" class="accent-button" type="button">Update surface</button>
+                  <button id="pnl-reset-camera" class="quiet-button" type="button">Reset camera</button>
+                </div>
+                <div id="pnl-assumptions" class="surface-quality"></div>
+              </div>
+              <div id="pnl-surface" class="surface-stage" aria-label="Interactive option P and L surface"></div>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" data-view-panel="hypothesis" aria-labelledby="hypothesis-title" hidden>
+          <header class="view-heading">
+            <div>
+              <p class="eyebrow">Visual observation to formal test</p>
+              <h1 id="hypothesis-title">Show the compiled logic before you see the answer.</h1>
+            </div>
+            <button id="hypothesis-export" class="quiet-button" type="button">Export latest result</button>
+          </header>
+
+          <div class="hypothesis-layout">
+            <section class="instrument-panel hypothesis-builder" aria-labelledby="builder-title">
+              <div class="panel-heading compact"><div><p class="panel-kicker">Structured specification</p><h2 id="builder-title">When...</h2></div></div>
+              <label class="wide-field">Name <input id="hypothesis-name" type="text" value="Equal-weight participation divergence"></label>
+              <div id="condition-list" class="condition-list"></div>
+              <div class="condition-add-row">
+                <label>Field <select id="condition-field"></select></label>
+                <label>Operator <select id="condition-operator"><option value="&gt;">&gt;</option><option value="&gt;=">&gt;=</option><option value="&lt;">&lt;</option><option value="&lt;=">&lt;=</option></select></label>
+                <label>Threshold <input id="condition-threshold" type="number" value="0.3" step="0.01"></label>
+                <button id="add-condition" class="quiet-button" type="button">Add condition</button>
+              </div>
+              <div class="target-row">
+                <label>Then measure <select id="target-field"></select></label>
+                <label>Horizon <select id="target-horizon"><option value="60">Next 60 minutes</option></select></label>
+              </div>
+              <div class="compiled-panel">
+                <p>Compiled test</p>
+                <code id="compiled-test"></code>
+              </div>
+              <button id="run-hypothesis" class="accent-button wide-command" type="button">Run chronological test</button>
+              <p class="panel-note">Conditions access only each historical row's observable features. The target is measured afterward, with event spacing and a final holdout.</p>
+            </section>
+
+            <section class="instrument-panel result-panel" aria-labelledby="results-title">
+              <div class="panel-heading">
+                <div><p class="panel-kicker">Distribution, not a signal</p><h2 id="results-title">Experiment result</h2></div>
+                <span id="test-risk" class="source-label">NO TEST RUN</span>
+              </div>
+              <div id="result-summary" class="result-summary"></div>
+              <div id="distribution-chart" class="chart-stage distribution-stage"></div>
+              <div id="holdout-summary" class="holdout-summary"></div>
+              <section class="analogue-section" aria-labelledby="analogue-title">
+                <div class="panel-heading compact"><div><p class="panel-kicker">Past-only match</p><h3 id="analogue-title">Historical analogues</h3></div><button id="find-analogues" class="quiet-button" type="button">Find analogues</button></div>
+                <div id="analogue-list" class="analogue-list"></div>
+              </section>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" data-view-panel="notebook" aria-labelledby="notebook-title" hidden>
+          <header class="view-heading">
+            <div>
+              <p class="eyebrow">Preserved thesis module</p>
+              <h1 id="notebook-title">Research notebook</h1>
+            </div>
+            <div id="notebook-link-status" class="provenance-chip" tabindex="0">Linked to selected market moment</div>
+          </header>
+          <div id="notebook-root" class="notebook-root"></div>
+        </section>
+
+        <section class="view" data-view-panel="sources" aria-labelledby="sources-title" hidden>
+          <header class="view-heading">
+            <div>
+              <p class="eyebrow">Provider health and capability discovery</p>
+              <h1 id="sources-title">Data sources</h1>
+            </div>
+            <span id="health-mode" class="mode-badge">DEMO</span>
+          </header>
+          <div id="provider-grid" class="provider-grid"></div>
+          <section class="instrument-panel source-detail" aria-labelledby="source-detail-title">
+            <div class="panel-heading compact"><div><p class="panel-kicker">Operational behavior</p><h2 id="source-detail-title">Fallback, cache, and limits</h2></div></div>
+            <div id="source-detail" class="source-detail-content"></div>
+          </section>
+        </section>
+      </main>
+
+      <aside class="right-rail" aria-label="Current state and assumptions">
+        <section class="right-section">
+          <p class="rail-label">Current state</p>
+          <div id="right-state" class="right-state"></div>
+        </section>
+        <section class="right-section">
+          <p class="rail-label">Assumptions</p>
+          <ul id="assumption-list" class="assumption-list"></ul>
+        </section>
+        <section class="right-section">
+          <p class="rail-label">Event markers</p>
+          <ol id="event-list" class="event-list"></ol>
+        </section>
+      </aside>
+
+      <footer class="timeline-bar" aria-label="Replay controls">
+        <div class="replay-controls">
+          <button id="step-back" class="timeline-button" type="button" title="Previous recorded snapshot">Step -</button>
+          <button id="play-button" class="timeline-button is-primary" type="button">Play</button>
+          <button id="step-forward" class="timeline-button" type="button" title="Next recorded snapshot">Step +</button>
+          <label class="speed-control">Speed <select id="speed-select"><option value="0.25">0.25x</option><option value="1" selected>1x</option><option value="5">5x</option><option value="20">20x</option><option value="100">100x</option></select></label>
+        </div>
+        <div class="timeline-track">
+          <input id="timeline-range" type="range" min="0" max="26" value="0" aria-label="Recorded session time">
+          <div id="timeline-events" class="timeline-events" aria-hidden="true"></div>
+        </div>
+        <div class="timeline-caption"><span id="timeline-start">09:30</span><strong id="timeline-selected">09:30 ET</strong><span id="timeline-end">16:00</span></div>
+      </footer>
+    </div>
+
+    <dialog id="command-dialog" class="command-dialog" aria-labelledby="command-title">
+      <form method="dialog" class="command-shell">
+        <div class="command-header"><h2 id="command-title">Go to</h2><button class="quiet-button" value="cancel">Close</button></div>
+        <input id="command-search" type="search" placeholder="Search commands" autocomplete="off">
+        <div id="command-list" class="command-list"></div>
+      </form>
+    </dialog>
+
+    <script type="importmap" nonce="__MARKETGLASS_CSP_NONCE__">{"imports":{"three":"/vendor/three/build/three.module.js","three/addons/":"/vendor/three/examples/jsm/"}}</script>
+    <script type="module" src="/web/app.mjs"></script>
+  </body>
+</html>
