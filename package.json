@@ -1,0 +1,11 @@
+{
+  "name": "marketglass",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An offline, evidence-first market research workbench.",
+  "type": "module",
+  "scripts": {
+    "check": "node --check app.js && node --check data.js && node --check logic.mjs",
+    "test": "node --test"
+  }
+}
