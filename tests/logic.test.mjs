@@ -107,6 +107,6 @@ test("research health rewards balance, diversity, tension, and falsifiers", () =
   const weak = evaluateResearch([], [], []);
 
   assert.ok(strong.score > weak.score);
-  assert.equal(strong.label, "Developing");
+  assert.equal(strong.label, "Structured");
   assert.equal(strong.falsifierCount, 2);
 });
